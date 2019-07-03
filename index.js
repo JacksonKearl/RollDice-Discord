@@ -1,6 +1,6 @@
 let Discord = require('discord.js')
 
-let client = new Discord.Client()
+let client = new Discord.Client({})
 
 client.on('ready', () => {
     console.log('I am ready!');
@@ -14,7 +14,6 @@ client.on('messageUpdate', (old, dlo) => {
 
 client.on('message', message => {
     // If the message is "ping"
-
     if (message.content === 'ping') {
       // Send "pong" to the same channel
       message.channel.send('pong');
