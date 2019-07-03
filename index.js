@@ -1,29 +1,30 @@
-let Discord = require('discord.js')
+require("newrelic");
 
-let client = new Discord.Client({})
+// Dummy thing to bind to heroku port to keep heroku happy
+require("express")()
+  .get("/", (req, res) => res.end("up!"))
+  .listen(process.env.PORT || 3000);
 
-client.on('ready', () => {
-    console.log('I am ready!');
+let Discord = require("discord.js");
+
+let client = new Discord.Client({});
+
+client.on("ready", () => {
+  console.log("I am ready!");
 });
 
-client.on('messageUpdate', (old, dlo) => {
-    if (dlo.content === 'ping') {
-        dlo.channel.send('gonp') 
-    } 
-})
-
-client.on('message', message => {
-    // If the message is "ping"
-    if (message.content === 'ping') {
-      // Send "pong" to the same channel
-      message.channel.send('pong');
-    }
+client.on("messageUpdate", (old, dlo) => {
+  if (dlo.content === "ping") {
+    dlo.channel.send("gonp");
+  }
 });
 
-client.login('NTk1NDM3ODYwNzE1MzY0MzU4.XRrC9g.nokX-AJvuWTE8khPxdCdToultTI')
+client.on("message", message => {
+  // If the message is "ping"
+  if (message.content === "ping") {
+    // Send "pong" to the same channel
+    message.channel.send("pong");
+  }
+});
 
-
-// Dummy thing to bind to heroku port/trigger the app to re-launch
-require('express')()
-    .get('/', (req, res) => res.end('up!')) 
-    .listen(process.env.PORT || 3000)
+client.login("NTk1NDM3ODYwNzE1MzY0MzU4.XRrC9g.nokX-AJvuWTE8khPxdCdToultTI");
