@@ -26,4 +26,4 @@ client.login('NTk1NDM3ODYwNzE1MzY0MzU4.XRrC9g.nokX-AJvuWTE8khPxdCdToultTI')
 // Dummy thing to bind to heroku port/trigger the app to re-launch
 require('express')()
     .get('/', (req, res) => res.end('up!')) 
-    .listen(process.env.port || 3000)
+    .listen(process.env.PORT || 3000)
