@@ -1,8 +1,6 @@
-require("newrelic");
-
 // Dummy thing to bind to heroku port to keep heroku happy
 require("express")()
-  .get("/", (req, res) => res.end("up!"))
+  .get("/", (req, res) => res.end("i'm up!"))
   .listen(process.env.PORT || 3000);
 
 let Discord = require("discord.js");
