@@ -69,7 +69,7 @@ describe("ParserBuilder", () => {
     let parse = new ParserBuilder<number>()
       .registerPrefix("NUMBER", { parse: (_, token) => +token.match })
       .registerPrefix("(", ParenthesesParselet)
-      .registerPrefix("-", { parse: parser => -parser.parse(Precedence.Negate) })
+      .prefix("-", Precedence.Negate, (_, right) => -right)
       .infixLeft("-", Precedence.AddSub, (left, _, right) => left - right)
       .infixLeft("+", Precedence.AddSub, (left, _, right) => left + right)
       .construct()
