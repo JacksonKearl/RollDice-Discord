@@ -93,7 +93,7 @@ export class ParserBuilder<E> {
   }
 }
 
-class Parser<E> {
+export class Parser<E> {
   constructor(
     private tokens: TokenMatchResult[],
     private prefixParselets: Record<string, PrefixParselet<E>>,

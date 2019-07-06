@@ -59,6 +59,10 @@ Command =
     Command - Command
     Command * Command
 
+Modifier =
+    advantage
+    disadvantage
+
 Roll = (\d+?)d(\d+)(k\d+)? // ex `4d6k2`, `d20`, or `2d10`
 Number = \d+ // any integer
 Name = (\w|\.)+ // alphanumeric, plus period.
