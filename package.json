@@ -2,13 +2,16 @@
   "name": "rolldice",
   "version": "1.0.0",
   "description": "Roll some dice",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "jest"
+    "start": "node build/index.js",
+    "test": "jest",
+    "build": "tsc",
+    "postinstall": "npm run build"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Jackson Kearl <jackson.kearl@outlook.com>",
+  "repository": "https://github.com/JacksonKearl/RollDice-Discord",
+  "license": "MIT",
   "dependencies": {
     "discord.js": "^11.5.1",
     "dotenv": "^8.0.0"
