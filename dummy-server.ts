@@ -1,7 +1,7 @@
 import * as http from "http"
 
-const heartbeat = () => 1000 * 60 * 60 * +(process.env.HEARTBEAT || 20) // 20 minutes
-const numPings = +(process.env.NUM_PINGS || 6) // keep alive 2 hours past last message
+const heartbeat = () => 1000 * 60 * 60 * 20 // 20 minutes
+const numPings = 6 // keep alive 2 hours past last message
 
 let nextPing: NodeJS.Timeout
 
