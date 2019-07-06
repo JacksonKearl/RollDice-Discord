@@ -9,6 +9,7 @@ const tokenizer = new Tokenizer([
   { pattern: "^" },
   { pattern: "(" },
   { pattern: ")" },
+  { pattern: "!" },
   { pattern: /\d+/, name: "NUMBER" }
 ])
 
@@ -74,6 +75,20 @@ describe("ParserBuilder", () => {
       .construct()
 
     let tokens = tokenizer.tokenize("-4 + -(4 + 5 - -4)")
+    let result = parse(tokens)
+    expect(result).toBe(-17)
+  })
+
+  it("can build an arithmetic parser with postfix operators", () => {
+    let parse = new ParserBuilder<number>()
+      .registerPrefix("NUMBER", { parse: (_, token) => +token.match })
+      .registerPrefix("(", ParenthesesParselet)
+      .postfix("!", Precedence.Negate, left => -left)
+      .infixLeft("-", Precedence.AddSub, (left, _, right) => left - right)
+      .infixLeft("+", Precedence.AddSub, (left, _, right) => left + right)
+      .construct()
+
+    let tokens = tokenizer.tokenize("4! + (4 + 5 - 4!)!")
     let result = parse(tokens)
     expect(result).toBe(-17)
   })
