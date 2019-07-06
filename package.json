@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node build/index.js",
     "test": "jest",
-    "build": "tsc",
-    "postinstall": "npm run build"
+    "build": "tsc"
   },
   "author": "Jackson Kearl <jackson.kearl@outlook.com>",
   "repository": "https://github.com/JacksonKearl/RollDice-Discord",
