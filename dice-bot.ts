@@ -17,9 +17,7 @@ import {
   ExpressionResult
 } from "./dice-expression"
 
-let Environment: Record<string, string> = {}
-
-const { tokenize } = new Tokenizer([
+export const { tokenize } = new Tokenizer([
   { pattern: "+" },
   { pattern: "-" },
   { pattern: "*" },
@@ -44,30 +42,30 @@ const enum Precedence {
   Negate = 6
 }
 
-const calculator = new ParserBuilder<DiceExpression>()
-  .registerPrefix("NUMBER", { parse: (_, token) => new Number(token.match) })
-  .registerPrefix("ROLL", { parse: (_, token) => new Roll(token.match) })
-  .registerPrefix("NAME", { parse: (_, token) => new Name(token.match, execute, Environment) })
-  .registerPrefix("(", ParenthesesParselet)
+export const calculator = (env: Record<string, string>) =>
+  new ParserBuilder<DiceExpression>()
+    .registerPrefix("NUMBER", { parse: (_, token) => new Number(token.match) })
+    .registerPrefix("ROLL", { parse: (_, token) => new Roll(token.match) })
+    .registerPrefix("NAME", { parse: (_, token) => new Name(token.match, execute, env) })
+    .registerPrefix("(", ParenthesesParselet)
 
-  .prefix("-", Precedence.Negate, (_, right) => Neg(right))
+    .prefix("-", Precedence.Negate, (_, right) => Neg(right))
 
-  .postfix("!", Precedence.Bang, left => Bang(left))
+    .postfix("!", Precedence.Bang, left => Bang(left))
 
-  .postfix("ADVANTAGE", Precedence.At, left => Advantage(left))
-  .postfix("DISADVANTAGE", Precedence.At, left => Disadvantage(left))
+    .postfix("ADVANTAGE", Precedence.At, left => Advantage(left))
+    .postfix("DISADVANTAGE", Precedence.At, left => Disadvantage(left))
 
-  .infixLeft("/", Precedence.MulDiv, (left, _, right) => Div(left, right))
-  .infixLeft("*", Precedence.MulDiv, (left, _, right) => Mul(left, right))
-  .infixLeft("+", Precedence.AddSub, (left, _, right) => Add(left, right))
-  .infixLeft("-", Precedence.AddSub, (left, _, right) => Sub(left, right))
+    .infixLeft("/", Precedence.MulDiv, (left, _, right) => Div(left, right))
+    .infixLeft("*", Precedence.MulDiv, (left, _, right) => Mul(left, right))
+    .infixLeft("+", Precedence.AddSub, (left, _, right) => Add(left, right))
+    .infixLeft("-", Precedence.AddSub, (left, _, right) => Sub(left, right))
 
-  .infixLeft("=", Precedence.Assign, (left, _, right) => Assign(left, right, Environment))
+    .infixLeft("=", Precedence.Assign, (left, _, right) => Assign(left, right, env))
 
-  .construct()
+    .construct()
 
-export const getEnv = () => Environment
-export const setEnv = (env: Record<string, string>) => (Environment = env)
-
-export const execute: (command: string) => ExpressionResult = str =>
-  calculator(tokenize(str)).execute()
+export const execute: (command: string, env: Record<string, string>) => ExpressionResult = (
+  str,
+  env
+) => calculator(env)(tokenize(str)).execute()

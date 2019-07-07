@@ -13,7 +13,8 @@
   "license": "MIT",
   "dependencies": {
     "discord.js": "^11.5.1",
-    "dotenv": "^8.0.0"
+    "dotenv": "^8.0.0",
+    "gists": "^2.0.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",

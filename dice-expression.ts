@@ -21,10 +21,10 @@ export class Roll implements DiceExpression {
   private numKeep: number
 
   constructor(private rollString: string) {
-    const [numDice, numSides, numKeep] = rollString.match(/(\d+)?d(\d+)(?:k(\d+))?/)!
+    const [_, numDice, numSides, numKeep] = rollString.match(/(\d+)?d(\d+)(?:k(\d+))?/)!
     this.numDice = +numDice || 1
     this.numSides = +numSides
-    this.numKeep = +numKeep || +numDice
+    this.numKeep = +numKeep || this.numDice
   }
 
   execute() {
@@ -48,7 +48,7 @@ export class Roll implements DiceExpression {
         ...(keptRolls.length === 1 && this.numSides === 20 && keptRolls[0] === 1
           ? ["Natty... 😔"]
           : []),
-        ...(this.numKeep > this.numSides
+        ...(this.numKeep > this.numDice
           ? [`Warning: keeping more dice than were rolled. Ignoring keep. (in ${this.rollString})`]
           : [])
       ]
@@ -59,14 +59,14 @@ export class Roll implements DiceExpression {
 export class Name implements DiceExpression {
   constructor(
     public name: string,
-    private calculate: (command: string) => ExpressionResult,
+    private calculate: (command: string, env: Record<string, string>) => ExpressionResult,
     private env: Record<string, string>
   ) {}
 
   execute() {
     const trace = this.env[this.name]
     if (!trace) throw new Error(`Error: "${this.name}" is not defined.`)
-    const result = this.calculate(trace)
+    const result = this.calculate(trace, this.env)
     return {
       value: result.value,
       messages: [`${this.name} -> ${trace}`, ...result.messages],

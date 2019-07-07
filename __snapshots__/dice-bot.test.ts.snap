@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DiceBot Tokenization can tokenize dice rolls 1`] = `
+Roll {
+  "numDice": 1,
+  "numKeep": 1,
+  "numSides": 20,
+  "rollString": "d20",
+}
+`;
