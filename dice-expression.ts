@@ -1,4 +1,10 @@
-export type ExpressionResult = { value: number; messages: string[]; trace: string }
+export enum MessageType {
+  RollResult,
+  NameLookup,
+  BangResult
+}
+export type Message = { type: MessageType; message: string }
+export type ExpressionResult = { value: number; messages: Message[]; trace: string }
 
 export interface DiceExpression {
   execute(): ExpressionResult
@@ -40,8 +46,8 @@ export class Roll implements DiceExpression {
       trace: this.rollString,
       messages: [
         discardedRolls.length
-          ? `${this.rollString}: [${keptRolls},~~${discardedRolls}~~]`
-          : `${this.rollString}: [${keptRolls}]`,
+          ? `${this.rollString} → [${keptRolls},~~${discardedRolls}~~]`
+          : `${this.rollString} → [${keptRolls}]`,
         ...(keptRolls.length === 1 && this.numSides === 20 && keptRolls[0] === 20
           ? ["Natty!! 🍾🍾"]
           : []),
@@ -51,7 +57,7 @@ export class Roll implements DiceExpression {
         ...(this.numKeep > this.numDice
           ? [`Warning: keeping more dice than were rolled. Ignoring keep. (in ${this.rollString})`]
           : [])
-      ]
+      ].map(message => ({ type: MessageType.RollResult, message }))
     }
   }
 }
@@ -65,11 +71,14 @@ export class Name implements DiceExpression {
 
   execute() {
     const trace = this.env[this.name]
-    if (!trace) throw new Error(`Error: "${this.name}" is not defined.`)
+    if (!trace) throw new Error(`"${this.name}" is not defined.`)
     const result = this.calculate(trace, this.env)
     return {
       value: result.value,
-      messages: [`${this.name} -> ${trace}`, ...result.messages],
+      messages: [
+        { message: `${this.name} → ${trace}`, type: MessageType.NameLookup },
+        ...result.messages
+      ],
       trace: this.name
     }
   }
@@ -100,7 +109,7 @@ export const Neg = (val: DiceExpression): DiceExpression => ({
     const result = val.execute()
     return {
       value: -result.value,
-      messages: [...result.messages],
+      messages: result.messages,
       trace: `-${result.trace}`
     }
   }
@@ -111,7 +120,7 @@ export const Bang = (val: DiceExpression): DiceExpression => ({
     const result = val.execute()
     return {
       value: result.value,
-      messages: [...result.messages],
+      messages: result.messages.map(({ message }) => ({ message, type: MessageType.BangResult })),
       trace: `${result.value}`
     }
   }
@@ -129,9 +138,9 @@ export const Assign = (
     }
     env[name.name] = result.trace
     return {
-      value: result.value,
-      messages: result.messages,
-      trace: `${name} = ${result.trace}`
+      value: `Assigned '${name.name}'` as any,
+      messages: result.messages.filter(message => message.type !== MessageType.RollResult),
+      trace: `${name.name} = ${result.trace}`
     }
   }
 })
@@ -147,7 +156,10 @@ export const Advantage = (command: DiceExpression): DiceExpression => ({
       trace: take.trace,
       messages: [
         ...take.messages,
-        ...other.messages.map(message => `~~${message.replace(/~~/g, "")}~~`)
+        ...other.messages.map(({ message, type }) => ({
+          message: `~~${message.replace(/~~/g, "")}~~`,
+          type
+        }))
       ]
     }
   }
@@ -164,7 +176,10 @@ export const Disadvantage = (command: DiceExpression): DiceExpression => ({
       trace: take.trace,
       messages: [
         ...take.messages,
-        ...other.messages.map(message => `~~${message.replace(/~~/g, "")}~~`)
+        ...other.messages.map(({ message, type }) => ({
+          message: `~~${message.replace(/~~/g, "")}~~`,
+          type
+        }))
       ]
     }
   }

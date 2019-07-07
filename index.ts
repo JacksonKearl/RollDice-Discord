@@ -1,18 +1,23 @@
 require("dotenv").config()
 
-import { keepAlive } from "./dummy-server"
+import { keepAlive, eventHandlers } from "./dummy-server"
 import * as Discord from "discord.js"
 import { execute } from "./dice-bot"
 import * as Gists from "gists"
 
 const gists = new Gists({ token: process.env.GITHUB_OAUTH })
 
-// Start by grabbing the env from github gist
-gists.get(process.env.GIST_ID).then((res: any) => {
-  let rawEnv = res.body.files[process.env.GIST_NAME!].content || "{}"
-  const Environment: Record<string, string> = JSON.parse(rawEnv)
-  console.log("Set env to", Environment)
+let rawEnv: string
 
+const downloadEnv = async () => {
+  const res = await gists.get(process.env.GIST_ID)
+  rawEnv = res.body.files[process.env.GIST_NAME!].content || "{}"
+  const environment: Record<string, Record<string, string>> = JSON.parse(rawEnv)
+  console.log("Set env to", environment)
+  return environment
+}
+
+downloadEnv().then(environment => {
   const client = new Discord.Client()
   client.login(process.env.DISCORD_TOKEN)
 
@@ -22,21 +27,24 @@ gists.get(process.env.GIST_ID).then((res: any) => {
 
     const expression = message.content
     try {
-      const result = execute(expression, Environment)
-      message.channel.send(`**${result.value}**
-\`${result.trace}\`
-${result.messages.join("\n")}
-`)
+      const personalEnv = { ...environment.globals, ...environment[message.author.username] }
+      const result = execute(expression, personalEnv)
+      environment[message.author.username] = personalEnv
+
+      const rollString = `${message.author.username} rolled: **${result.value}**`
+      const trace = `\`${result.trace}\``
+      const messages = result.messages.map(({ message }) => message).join("\n")
+      message.channel.send([rollString, trace, messages].join("\n"))
     } catch (e) {
-      message.channel.send(`Unable to parse ${expression}: ${e.message}`)
+      message.channel.send(`Unable to execute ${expression}: ${e.message}`)
     }
   })
 
-  // Update gist every minute, if a change has occurred
-  setInterval(async () => {
-    const env = JSON.stringify(Environment, null, 2)
+  const uploadEnv = async () => {
+    const env = JSON.stringify(environment, null, 2)
     if (rawEnv === env) return
     console.log("Updating env to", env)
+    rawEnv = env
     await gists.edit(process.env.GIST_ID, {
       files: {
         [process.env.GIST_NAME!]: {
@@ -44,7 +52,12 @@ ${result.messages.join("\n")}
         }
       }
     })
-    rawEnv = env
     console.log("Updated env")
-  }, 60 * 1000)
+  }
+
+  eventHandlers.uploadEnv = uploadEnv
+  eventHandlers.downloadEnv = () => downloadEnv().then(newEnv => (environment = newEnv))
+
+  // Update gist every minute, if a change has occurred
+  setInterval(uploadEnv, 60 * 1000)
 })

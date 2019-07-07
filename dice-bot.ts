@@ -29,8 +29,8 @@ export const { tokenize } = new Tokenizer([
   { pattern: /@a(d(v(a(n(t(a(g(e)?)?)?)?)?)?)?)?\b/, name: "ADVANTAGE" },
   { pattern: /@d(i(s(a(d(v(a(n(t(a(g(e)?)?)?)?)?)?)?)?)?)?)?\b/, name: "DISADVANTAGE" },
   { pattern: /(\d+)?d(\d+)(k\d+)?/, name: "ROLL" },
-  { pattern: /\d+/, name: "NUMBER" },
-  { pattern: /(\w|\.)+/, name: "NAME" }
+  { pattern: /[a-zA-Z](\w|\.)*/, name: "NAME" },
+  { pattern: /\d+/, name: "NUMBER" }
 ])
 
 const enum Precedence {

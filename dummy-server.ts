@@ -15,8 +15,16 @@ export const keepAlive = (n = numPings) => {
   nextPing = setTimeout(() => keepAlive(n - 1), heartbeat())
 }
 
+export const eventHandlers = {
+  downloadEnv: () => {},
+  uploadEnv: () => {}
+}
+
 http
-  .createServer((_, res) => {
+  .createServer((req, res) => {
+    if (req.url!.indexOf("pull") >= 0) eventHandlers.downloadEnv()
+    if (req.url!.indexOf("push") >= 0) eventHandlers.uploadEnv()
+
     console.log("Received request. Staying alive a bit longer.")
     res.end("i'm up!")
   })

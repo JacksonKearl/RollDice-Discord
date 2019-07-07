@@ -7,5 +7,12 @@ describe("DiceBot", () => {
       let executor = DiceBot.calculator({})(tokens)
       expect(executor).toMatchSnapshot()
     })
+
+    it("can tokenize dice rolls", () => {
+      let tokens = DiceBot.tokenize("a = 4")
+      expect(tokens).toMatchSnapshot()
+      let executor = DiceBot.calculator({})(tokens)
+      expect(executor).toMatchSnapshot()
+    })
   })
 })

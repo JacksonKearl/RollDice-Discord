@@ -8,3 +8,29 @@ Roll {
   "rollString": "d20",
 }
 `;
+
+exports[`DiceBot Tokenization can tokenize dice rolls 2`] = `
+Array [
+  Object {
+    "match": "a",
+    "name": "NAME",
+    "pattern": /\\[a-zA-Z\\]\\(\\\\w\\|\\\\\\.\\)\\*/,
+  },
+  Object {
+    "match": "=",
+    "name": "=",
+    "pattern": /=/,
+  },
+  Object {
+    "match": "4",
+    "name": "NUMBER",
+    "pattern": /\\\\d\\+/,
+  },
+]
+`;
+
+exports[`DiceBot Tokenization can tokenize dice rolls 3`] = `
+Object {
+  "execute": [Function],
+}
+`;
