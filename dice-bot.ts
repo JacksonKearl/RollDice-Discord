@@ -27,8 +27,8 @@ export const { tokenize } = new Tokenizer([
   { pattern: ")" },
   { pattern: "!" },
   { pattern: "=" },
-  { pattern: /@a(d(v(a(n(t(a(g(e)?)?)?)?)?)?)?)?\b/, name: "ADVANTAGE" },
-  { pattern: /@d(i(s(a(d(v(a(n(t(a(g(e)?)?)?)?)?)?)?)?)?)?)?\b/, name: "DISADVANTAGE" },
+  { pattern: /@\s*a(d(v(a(n(t(a(g(e)?)?)?)?)?)?)?)?\b/, name: "ADVANTAGE" },
+  { pattern: /@\s*d(i(s(a(d(v(a(n(t(a(g(e)?)?)?)?)?)?)?)?)?)?)?\b/, name: "DISADVANTAGE" },
   { pattern: /(\d+)?d(\d+)(k\d+)?/, name: "ROLL" },
   { pattern: /[a-zA-Z](\w|\.)*/, name: "NAME" },
   { pattern: /\d+/, name: "NUMBER" }

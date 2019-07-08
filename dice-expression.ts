@@ -154,7 +154,7 @@ export const Advantage = (command: DiceExpression): DiceExpression => ({
     const other = first.value < second.value ? first : second
     return {
       value: take.value,
-      trace: take.trace,
+      trace: `(${take.trace}) @advantage`,
       messages: [
         ...take.messages,
         ...other.messages.map(({ message, type }) => ({
@@ -174,7 +174,7 @@ export const Disadvantage = (command: DiceExpression): DiceExpression => ({
     const other = first.value > second.value ? first : second
     return {
       value: take.value,
-      trace: take.trace,
+      trace: `(${take.trace}) @disadvantage`,
       messages: [
         ...take.messages,
         ...other.messages.map(({ message, type }) => ({
