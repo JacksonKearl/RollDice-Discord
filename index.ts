@@ -1,6 +1,6 @@
 require("dotenv").config()
 
-import { keepAlive, eventHandlers } from "./dummy-server"
+import { keepAlive, eventHandlers } from "./web-interface"
 import * as Discord from "discord.js"
 import { execute } from "./dice-bot"
 import * as Gists from "gists"
@@ -11,10 +11,11 @@ const gists = new Gists({ token: process.env.GITHUB_OAUTH })
 let rawEnv: string
 
 const downloadEnv = async () => {
+  console.log("Loading environment from gist...")
   const res = await gists.get(process.env.GIST_ID)
   rawEnv = res.body.files[process.env.GIST_NAME!].content
   const environment = new Environment(rawEnv)
-  console.log("Set env to", environment)
+  console.log("Initialized env to", environment)
   return environment
 }
 
@@ -29,7 +30,6 @@ downloadEnv().then(environment => {
     const expression = message.content
     try {
       const result = execute(expression, environment.forUser(message.author.username))
-
       const rollString = `${message.author.username} rolled: **${result.value}**`
       const trace = `\`${result.trace}\``
       const messages = result.messages.map(({ message }) => message).join("\n")
@@ -41,8 +41,8 @@ downloadEnv().then(environment => {
 
   const uploadEnv = async () => {
     if (environment.modified) {
-      let serialized = environment.serialize
-      console.log("Updating gist env to", serialized)
+      let serialized = environment.serialize()
+      console.log("Updating gist to", serialized)
       environment.modified = false
       await gists.edit(process.env.GIST_ID, {
         files: {
@@ -51,12 +51,18 @@ downloadEnv().then(environment => {
           }
         }
       })
-      console.log("Updated env")
+      console.log("Updated gist")
     }
   }
 
-  eventHandlers.uploadEnv = uploadEnv
-  eventHandlers.downloadEnv = () => downloadEnv().then(newEnv => (environment = newEnv))
+  eventHandlers.setEnv = (env: string) => {
+    console.log("Setting env to", env)
+    environment = new Environment(env)
+    environment.modified = true
+    uploadEnv()
+  }
+
+  eventHandlers.getEnv = () => environment.serialize()
 
   // Update gist every minute, if a change has occurred
   setInterval(uploadEnv, 60 * 1000)
