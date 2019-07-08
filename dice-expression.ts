@@ -1,3 +1,5 @@
+import { UserEnvironmentView } from "./environment"
+
 export enum MessageType {
   RollResult,
   NameLookup,
@@ -65,13 +67,12 @@ export class Roll implements DiceExpression {
 export class Name implements DiceExpression {
   constructor(
     public name: string,
-    private calculate: (command: string, env: Record<string, string>) => ExpressionResult,
-    private env: Record<string, string>
+    private calculate: (command: string, env: UserEnvironmentView) => ExpressionResult,
+    private env: UserEnvironmentView
   ) {}
 
   execute() {
-    const trace = this.env[this.name]
-    if (!trace) throw new Error(`"${this.name}" is not defined.`)
+    const trace = this.env.get(this.name)
     const result = this.calculate(trace, this.env)
     return {
       value: result.value,
@@ -129,14 +130,14 @@ export const Bang = (val: DiceExpression): DiceExpression => ({
 export const Assign = (
   name: DiceExpression,
   value: DiceExpression,
-  env: Record<string, string>
+  env: UserEnvironmentView
 ): DiceExpression => ({
   execute() {
     const result = value.execute()
     if (!(name instanceof Name)) {
       throw Error(`Cannot assign to non-name "${result.trace}"`)
     }
-    env[name.name] = result.trace
+    env.set(name.name, result.trace)
     return {
       value: `Assigned '${name.name}'` as any,
       messages: result.messages.filter(message => message.type !== MessageType.RollResult),

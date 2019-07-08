@@ -4,6 +4,7 @@ import { keepAlive, eventHandlers } from "./dummy-server"
 import * as Discord from "discord.js"
 import { execute } from "./dice-bot"
 import * as Gists from "gists"
+import { Environment } from "./environment"
 
 const gists = new Gists({ token: process.env.GITHUB_OAUTH })
 
@@ -11,8 +12,8 @@ let rawEnv: string
 
 const downloadEnv = async () => {
   const res = await gists.get(process.env.GIST_ID)
-  rawEnv = res.body.files[process.env.GIST_NAME!].content || "{}"
-  const environment: Record<string, Record<string, string>> = JSON.parse(rawEnv)
+  rawEnv = res.body.files[process.env.GIST_NAME!].content
+  const environment = new Environment(rawEnv)
   console.log("Set env to", environment)
   return environment
 }
@@ -27,9 +28,7 @@ downloadEnv().then(environment => {
 
     const expression = message.content
     try {
-      const personalEnv = { ...environment.globals, ...environment[message.author.username] }
-      const result = execute(expression, personalEnv)
-      environment[message.author.username] = personalEnv
+      const result = execute(expression, environment.forUser(message.author.username))
 
       const rollString = `${message.author.username} rolled: **${result.value}**`
       const trace = `\`${result.trace}\``
@@ -41,18 +40,19 @@ downloadEnv().then(environment => {
   })
 
   const uploadEnv = async () => {
-    const env = JSON.stringify(environment, null, 2)
-    if (rawEnv === env) return
-    console.log("Updating env to", env)
-    rawEnv = env
-    await gists.edit(process.env.GIST_ID, {
-      files: {
-        [process.env.GIST_NAME!]: {
-          content: env
+    if (environment.modified) {
+      let serialized = environment.serialize
+      console.log("Updating gist env to", serialized)
+      environment.modified = false
+      await gists.edit(process.env.GIST_ID, {
+        files: {
+          [process.env.GIST_NAME!]: {
+            content: serialized
+          }
         }
-      }
-    })
-    console.log("Updated env")
+      })
+      console.log("Updated env")
+    }
   }
 
   eventHandlers.uploadEnv = uploadEnv

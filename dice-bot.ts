@@ -16,6 +16,7 @@ import {
   Assign,
   ExpressionResult
 } from "./dice-expression"
+import { UserEnvironmentView } from "./environment"
 
 export const { tokenize } = new Tokenizer([
   { pattern: "+" },
@@ -42,7 +43,7 @@ const enum Precedence {
   Negate = 6
 }
 
-export const calculator = (env: Record<string, string>) =>
+export const calculator = (env: UserEnvironmentView) =>
   new ParserBuilder<DiceExpression>()
     .registerPrefix("NUMBER", { parse: (_, token) => new Number(token.match) })
     .registerPrefix("ROLL", { parse: (_, token) => new Roll(token.match) })
@@ -65,7 +66,7 @@ export const calculator = (env: Record<string, string>) =>
 
     .construct()
 
-export const execute: (command: string, env: Record<string, string>) => ExpressionResult = (
+export const execute: (command: string, env: UserEnvironmentView) => ExpressionResult = (
   str,
   env
 ) => calculator(env)(tokenize(str)).execute()
