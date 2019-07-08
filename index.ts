@@ -3,18 +3,17 @@ require("dotenv").config()
 import { keepAlive, eventHandlers } from "./web-interface"
 import * as Discord from "discord.js"
 import { execute } from "./dice-bot"
-import * as Gists from "gists"
+import { Gist } from "./gist"
 import { Environment } from "./environment"
 
-const gists = new Gists({ token: process.env.GITHUB_OAUTH })
+const gist = new Gist(process.env.GITHUB_OAUTH!)
 
 let rawEnv: string
 
 const downloadEnv = async () => {
   console.log("Loading environment from gist...")
-  const res = await gists.get(process.env.GIST_ID)
-  rawEnv = res.body.files[process.env.GIST_NAME!].content
-  const environment = new Environment(rawEnv)
+  const res = await gist.pull(process.env.GIST_ID!, process.env.GIST_NAME!)
+  const environment = new Environment(res)
   console.log("Initialized env to", environment)
   return environment
 }
@@ -44,13 +43,7 @@ downloadEnv().then(environment => {
       let serialized = environment.serialize()
       console.log("Updating gist to", serialized)
       environment.modified = false
-      await gists.edit(process.env.GIST_ID, {
-        files: {
-          [process.env.GIST_NAME!]: {
-            content: serialized
-          }
-        }
-      })
+      await gist.push(process.env.GIST_ID!, process.env.GIST_NAME!, serialized)
       console.log("Updated gist")
     }
   }
