@@ -32,7 +32,7 @@ ath // defaults to strength.check
 
 gold = 0
 > gold is 0
-gold = !gold + 5 // maybe add a "gold += 5" convenience syntax for this
+gold += 5
 > gold is 5
 gold
 > 5
@@ -47,6 +47,12 @@ Line =
 
 Alias =
     Name `=` Command
+
+Increment =
+    Name `+=` Command
+
+Decrement =
+    Name `+=` Command
 
 Command =
     Roll

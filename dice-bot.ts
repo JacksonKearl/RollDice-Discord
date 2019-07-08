@@ -19,6 +19,8 @@ import {
 import { UserEnvironmentView } from "./environment"
 
 export const { tokenize } = new Tokenizer([
+  { pattern: "+=" },
+  { pattern: "-=" },
   { pattern: "+" },
   { pattern: "-" },
   { pattern: "*" },
@@ -62,6 +64,12 @@ export const calculator = (env: UserEnvironmentView) =>
     .infixLeft("+", Precedence.AddSub, (left, _, right) => Add(left, right))
     .infixLeft("-", Precedence.AddSub, (left, _, right) => Sub(left, right))
 
+    .infixLeft("+=", Precedence.Assign, (left, _, right) =>
+      Assign(left, Add(Bang(left), right), env)
+    )
+    .infixLeft("-=", Precedence.Assign, (left, _, right) =>
+      Assign(left, Sub(Bang(left), right), env)
+    )
     .infixLeft("=", Precedence.Assign, (left, _, right) => Assign(left, right, env))
 
     .construct()
