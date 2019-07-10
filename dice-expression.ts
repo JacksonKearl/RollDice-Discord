@@ -29,7 +29,7 @@ export class Roll implements DiceExpression {
   private numKeep: number
 
   constructor(private rollString: string) {
-    const [_, numDice, numSides, numKeep] = rollString.match(/(\d+)?d(\d+)(?:k(\d+))?/)!
+    const [_, numDice, numSides, numKeep] = rollString.match(/(\d+)?d(\d+)(?:k(\d+))?/i)!
     this.numDice = +numDice || 1
     this.numSides = +numSides
     this.numKeep = +numKeep || this.numDice
