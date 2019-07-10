@@ -26,23 +26,18 @@ downloadEnv().then(environment => {
     if (message.author.username === "RollDice") return
     keepAlive()
 
-    const showTrace = message.content.startsWith("!")
+    const showErrors = message.content.startsWith("!")
     try {
-      const expression = showTrace ? message.content.slice(1) : message.content
+      const expression = showErrors ? message.content.slice(1) : message.content
 
       const result = execute(expression, environment.forUser(message.author.username))
 
-      const rollString = `${message.author.username} rolled: **${result.value}**`
+      const rollString = `${message.author.username}: **${result.value}**`
       const trace = `\`${result.trace}\``
       const messages = result.messages.map(({ message }) => message).join("\n")
-
-      if (showTrace) {
-        message.channel.send([rollString, trace, messages].join("\n"))
-      } else {
-        message.channel.send(rollString)
-      }
+      message.channel.send([rollString, trace, messages].join("\n"))
     } catch (e) {
-      if (showTrace) message.channel.send(`Unable to execute ${message.content}: ${e.message}`)
+      if (showErrors) message.channel.send(`Unable to execute ${message.content}: ${e.message}`)
     }
   })
 
