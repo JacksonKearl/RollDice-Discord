@@ -1,6 +1,8 @@
 # RollDice
 
 ## Discord bot for simple, personalized, D&D dice rolling
+or...
+## Lazily executed language with first-class support for random variable literals
 
 There are a million and one dice rolling apps out there, but I find they tend to have the same issues:
 
@@ -46,13 +48,13 @@ Line =
     Command
 
 Alias =
-    Name `=` Command
+    Name = Command
 
 Increment =
-    Name `+=` Command
+    Name += Command
 
 Decrement =
-    Name `+=` Command
+    Name += Command
 
 Command =
     Roll
