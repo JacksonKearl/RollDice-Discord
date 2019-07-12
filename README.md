@@ -82,6 +82,7 @@ Notes:
 - A `Name` cannot also be a `Roll`
 - Precendence follows normal arithmatic rules, with `At` being lowest precendence besides `=`, and `Bang` and `Negate` being hoghest precendence. 
 - `!Command` executes the `Command` and returns the result, so `wis = !d20` would make each call to `wis` return the same value, whereas `wis = d20` would make each call return a newly generated value. This is mainly helpful for one-time initializations, like hit points or skill modifiers.
+- Modidiers need only spcify a unique prefix (`@a === @advantage`).
 - `Command @adv` executes the `Command` twice and returns the higher value. Similar for `@dis`, but returning the lower value.
 - Outside of `Roll`, `Number`, and `Name`, whitespace is ignored.
 
