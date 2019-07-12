@@ -54,7 +54,7 @@ Increment =
     Name += Command
 
 Decrement =
-    Name += Command
+    Name -= Command
 
 Command =
     Roll
