@@ -30,7 +30,7 @@ downloadEnv().then(environment => {
     try {
       const expression = showErrors ? message.content.slice(1) : message.content
 
-      const result = execute(expression, environment.forUser(message.author.username))
+      const result = execute(expression.toLowerCase(), environment.forUser(message.author.username))
 
       const rollString = `${message.author.username}: **${result.value}**`
       const trace = `\`${result.trace}\``
