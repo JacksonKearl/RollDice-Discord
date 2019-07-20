@@ -12,6 +12,7 @@
   "repository": "https://github.com/JacksonKearl/RollDice-Discord",
   "license": "MIT",
   "dependencies": {
+    "@jkearl/pratt": "^0.1.1",
     "axios": "^0.19.0",
     "discord.js": "^11.5.1",
     "dotenv": "^8.0.0",

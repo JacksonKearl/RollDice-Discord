@@ -1,5 +1,5 @@
-import { ParserBuilder, ParenthesesParselet } from "./parse"
-import { Tokenizer } from "./tokenize"
+import { ParserBuilder, PARENTHESES_PARSELET, Tokenizer, TokenMatchResult } from "@jkearl/pratt"
+
 import {
   Name,
   Number,
@@ -29,11 +29,11 @@ export const { tokenize } = new Tokenizer([
   { pattern: ")" },
   { pattern: "!" },
   { pattern: "=" },
-  { pattern: /@\s*a(d(v(a(n(t(a(g(e)?)?)?)?)?)?)?)?\b/, name: "ADVANTAGE" },
-  { pattern: /@\s*d(i(s(a(d(v(a(n(t(a(g(e)?)?)?)?)?)?)?)?)?)?)?\b/, name: "DISADVANTAGE" },
-  { pattern: /(\d+)?(?:d|D)(\d+)(k\d+)?/, name: "ROLL" },
-  { pattern: /[a-zA-Z](\w|\.)*/, name: "NAME" },
-  { pattern: /\d+/, name: "NUMBER" }
+  { pattern: /@\s*a(d(v(a(n(t(a(g(e)?)?)?)?)?)?)?)?\b/, id: "ADVANTAGE" },
+  { pattern: /@\s*d(i(s(a(d(v(a(n(t(a(g(e)?)?)?)?)?)?)?)?)?)?)?\b/, id: "DISADVANTAGE" },
+  { pattern: /(\d+)?(?:d|D)(\d+)(k\d+)?/, id: "ROLL" },
+  { pattern: /[a-zA-Z](\w|\.)*/, id: "NAME" },
+  { pattern: /\d+/, id: "NUMBER" }
 ])
 
 const enum Precedence {
@@ -46,11 +46,11 @@ const enum Precedence {
 }
 
 export const calculator = (env: UserEnvironmentView) =>
-  new ParserBuilder<DiceExpression>()
-    .registerPrefix("NUMBER", { parse: (_, token) => new Number(token.match) })
-    .registerPrefix("ROLL", { parse: (_, token) => new Roll(token.match) })
-    .registerPrefix("NAME", { parse: (_, token) => new Name(token.match, execute, env) })
-    .registerPrefix("(", ParenthesesParselet)
+  new ParserBuilder<DiceExpression, TokenMatchResult>(tokenize)
+    .registerPrefix("NUMBER", { parse: (_, token) => new Number(token.value) })
+    .registerPrefix("ROLL", { parse: (_, token) => new Roll(token.value) })
+    .registerPrefix("NAME", { parse: (_, token) => new Name(token.value, execute, env) })
+    .registerPrefix("(", PARENTHESES_PARSELET)
 
     .prefix("-", Precedence.Negate, (_, right) => Neg(right))
 
@@ -77,4 +77,4 @@ export const calculator = (env: UserEnvironmentView) =>
 export const execute: (command: string, env: UserEnvironmentView) => ExpressionResult = (
   str,
   env
-) => calculator(env)(tokenize(str)).execute()
+) => calculator(env)(str).execute()
