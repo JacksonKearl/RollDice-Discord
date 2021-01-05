@@ -13,7 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "@jkearl/pratt": "^0.1.1",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "discord.js": "^11.5.1",
     "dotenv": "^8.0.0",
     "node-fetch": "^2.6.0"
